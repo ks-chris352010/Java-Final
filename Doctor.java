@@ -8,7 +8,23 @@ public class Doctor extends User{
         this.medicalLicenseNumber = medicalLicenseNumber;
         this.specialization = specialization;
     }
+    // Getter methods:
+    public String getMedicalLicenseNumber() {
+        return medicalLicenseNumber;
+    }
 
-    // Getters and setters for the new properties
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    // Setter methods:
+    public void setMedicalLicenseNumber(String medicalLicenseNumber) {
+        this.medicalLicenseNumber = medicalLicenseNumber;
+    }
+
+    public void setSpecialization(String specialization) {
+        this.specialization = specialization;
+    }
+
 }
 

@@ -1,48 +1,122 @@
 import org.mindrot.jbcrypt.BCrypt;
-
 import java.sql.*;
 
 public class UserDao {
-   /*
+    private Connection connection;
+
+    // Constructor to initialize the connection:
+    public UserDao(Connection connection) {
+        this.connection = connection;
+    }
+
+    // Method to create a new user:
     public boolean createUser(User user) {
-        // insert user into database 
         String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
-
-        // Prepare the SQL query
-
-        // Database logic to insert data using PREPARED Statement
-
+        String sql = "INSERT INTO users (first_name, last_name, email, password, is_doctor) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, user.getFirstName());
+            statement.setString(2, user.getLastName());
+            statement.setString(3, user.getEmail());
+            statement.setString(4, hashedPassword);
+            statement.setBoolean(5, user.isDoctor());
+            int rowsInserted = statement.executeUpdate();
+            return rowsInserted > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
-    public User getUserById(int id) { //get user by id from database 
+
+    // Method to get a user by ID:
+    public User getUserById(int id) {
         User user = null;
-
-        // Prepare the SQL query
-        // Database logic to get data by ID Using Prepared Statement
-
+        String sql = "SELECT * FROM users WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    user = extractUserFromResultSet(resultSet);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return user;
     }
 
-    public User getUserByEmail(String email) { // get user by email from database 
+    // Method to get a user by email:
+    public User getUserByEmail(String email) {
         User user = null;
-
-        // Prepare the SQL query
-        // Database logic to get data by ID Using Prepared Statement
-
+        String sql = "SELECT * FROM users WHERE email = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, email);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    user = extractUserFromResultSet(resultSet);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return user;
     }
 
-
+    // Method to update a user:
     public boolean updateUser(User user) {
-        // Prepare the SQL query
-        // Database logic to get update user Using Prepared Statement
-    }
-    public boolean deleteUser(int id) { // delete user from the database 
-        // Prepare the SQL query
-        // Database logic to delete user
+        String sql = "UPDATE users SET first_name = ?, last_name = ?, email = ?, is_doctor = ? WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, user.getFirstName());
+            statement.setString(2, user.getLastName());
+            statement.setString(3, user.getEmail());
+            statement.setBoolean(4, user.isDoctor());
+            statement.setInt(5, user.getId());
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
-    public boolean verifyPassword (String email, String password)
-    {
-//        String query = "SELECT password FROM users WHERE email = ?";    // SQL Statement
-        //Implement logic to retrieve password using the Bcrypt
+    // Method to delete a user:
+    public boolean deleteUser(int id) {
+        String sql = "DELETE FROM users WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            int rowsDeleted = statement.executeUpdate();
+            return rowsDeleted > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
-*/
+
+    // Method to verify password:
+    public boolean verifyPassword(String email, String password) {
+        String sql = "SELECT password FROM users WHERE email = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, email);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    String hashedPassword = resultSet.getString("password");
+                    return BCrypt.checkpw(password, hashedPassword);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Method to convert a user entry form the database into user object:
+    private User extractUserFromResultSet(ResultSet resultSet) throws SQLException {
+        return new User(
+            resultSet.getInt("id"),
+            resultSet.getString("first_name"),
+            resultSet.getString("last_name"),
+            resultSet.getString("email"),
+            resultSet.getString("password"),
+            resultSet.getBoolean("is_doctor")
+        );
+    }
 }
