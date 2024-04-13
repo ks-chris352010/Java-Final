@@ -63,6 +63,24 @@ public class HealthDataDao {
         return healthDataList;
     }
 
+    // Method to get the latest health data for a user:
+    public HealthData getLatestHealthDataForUser(int userId) {
+        HealthData latestHealthData = null;
+        String sql = "SELECT * FROM health_data WHERE user_id = ? ORDER BY date DESC LIMIT 1";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    latestHealthData = extractHealthDataFromResultSet(resultSet);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return latestHealthData;
+    }
+
+
     // Method to update health data:
     public boolean updateHealthData(HealthData healthData) {
         String sql = "UPDATE health_data SET weight = ?, height = ?, steps = ?, heart_rate = ?, date = ? WHERE id = ?";

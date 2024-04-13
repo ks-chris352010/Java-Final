@@ -10,7 +10,7 @@ public class MedicineReminderManager {
         this.connection = connection;
     }
 
-    // Method to add a medicine reminder
+    // Method to add a medicine reminder:
     public void addMedicineReminder(MedicineReminder reminder) {
         String sql = "INSERT INTO medicine_reminders (user_id, medicine_name, dosage, schedule, start_date, end_date) " +
                      "VALUES (?, ?, ?, ?, ?, ?)";
@@ -27,7 +27,7 @@ public class MedicineReminderManager {
         }
     }
 
-    // Method to get medicine reminders for a specific user
+    // Method to get medicine reminders for a specific user:
     public List<MedicineReminder> getMedicineRemindersForUser(int userId) {
         List<MedicineReminder> userReminders = new ArrayList<>();
         String sql = "SELECT * FROM medicine_reminders WHERE user_id = ?";
@@ -44,7 +44,7 @@ public class MedicineReminderManager {
         return userReminders;
     }
 
-    // Method to get medicine reminders that are due for a specific user
+    // Method to get medicine reminders that are due for a specific user:
     public List<MedicineReminder> getDueMedicineReminders(int userId) {
         List<MedicineReminder> dueReminders = new ArrayList<>();
         LocalDate now = LocalDate.now();
