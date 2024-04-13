@@ -1,10 +1,18 @@
 import java.util.List;
 
+/**
+ * The DAO (Data Access Object) class for managing doctor-related operations in the portal.
+ * This class facilitates interactions with the database for retrieving doctor, patient, and health data information.
+*/
 public class DoctorPortalDao {
+
     private UserDao userDao;
     private HealthDataDao healthDataDao;
 
-    // Constructor
+    /**
+     * Constructs a DoctorPortalDao object and initializes UserDao and HealthDataDao.
+     * Assumes a valid database connection is available.
+    */
     public DoctorPortalDao() {
         // Assuming you have a valid connection object named 'connection' available
         DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -12,7 +20,12 @@ public class DoctorPortalDao {
         healthDataDao = new HealthDataDao(databaseConnection.getCon());
     }
 
-    // Method to get a doctor by ID
+    /**
+     * Retrieves a doctor by their unique identifier.
+     *
+     * @param doctorId The unique identifier of the doctor.
+     * @return The Doctor object if found, or null if not found or not a doctor.
+    */
     public Doctor getDoctorById(int doctorId) {
         User user = userDao.getUserById(doctorId);
         if (user != null && user.isDoctor()) {
@@ -22,17 +35,24 @@ public class DoctorPortalDao {
         return null;
     }
 
-    // Method to get patients by doctor ID
+    /**
+     * Retrieves a list of patients associated with a specific doctor.
+     *
+     * @param doctorId The unique identifier of the doctor.
+     * @return A list of User objects representing patients, or an empty list if none found.
+    */
     public List<User> getPatientsByDoctorId(int doctorId) {
         return userDao.getPatientsForDoctor(doctorId);
     }
 
-    // Method to get health data by patient ID
+    /**
+     * Retrieves health data associated with a specific patient.
+     *
+     * @param patientId The unique identifier of the patient.
+     * @return A list of HealthData objects representing health data records, or an empty list if none found.
+    */
     public List<HealthData> getHealthDataByPatientId(int patientId) {
         return healthDataDao.getHealthDataByUserId(patientId);
     }
-
-    
-
-    // Add more methods for other doctor-specific tasks
 }
+

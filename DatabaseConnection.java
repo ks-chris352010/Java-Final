@@ -8,7 +8,7 @@ public class DatabaseConnection {
     // private static final String url = "jdbc:postgresql://localhost:5432/APJavaFinalSprint";
     private static final String url = "jdbc:postgresql://localhost:5432/Health";
     private static final String user = "postgres";
-    private static final String password = "000rat000";
+    private static final String password = "000rAt000";
 
     public static Connection getCon(){
         Connection connection = null;

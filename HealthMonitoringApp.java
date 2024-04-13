@@ -15,7 +15,7 @@ public class HealthMonitoringApp {
         doctorPortalDao = new DoctorPortalDao();
 
         // Test register a new user:
-        testRegisterUser();
+        testRegisterUser(); // Commented out because data is already in the database as of writing this comment.
 
         // Test login user:
         testLoginUser("qmalik@gmail.com", "SuperSecurePassword");
@@ -78,17 +78,24 @@ public class HealthMonitoringApp {
         for (User user : userList) {
             userDao.createUser(user);
         }
+        userDao.addDoctorPatientRelation(1,2);
+        userDao.addDoctorPatientRelation(1,4);
+        userDao.addDoctorPatientRelation(1,3);
+        userDao.addDoctorPatientRelation(1,6);
+        userDao.addDoctorPatientRelation(5,7);
+        userDao.addDoctorPatientRelation(5,8);
+        userDao.addDoctorPatientRelation(5,9);
     }
 
     public static void testAddHealthData() {
         ArrayList<HealthData> healthDataList = new ArrayList<>();
-        healthDataList.add(new HealthData(1, 2, 320.3, 1.8, 7000, 120, "2024-01-11"));
-        healthDataList.add(new HealthData(2, 2, 254.0, 1.8, 14000, 76, "2024-04-12"));
-        healthDataList.add(new HealthData(3, 3, 190, 1.67, 11008, 180, "2024-01-02"));
-        healthDataList.add(new HealthData(4, 4, 100, 1.76, 21000, 70, "2023-06-01"));
-        healthDataList.add(new HealthData(5, 6, 180, 1.9, 10001, 53, "2024-04-12"));
-        healthDataList.add(new HealthData(6, 7, 180, 1.9, 10001, 53, "2024-04-12"));
-        healthDataList.add(new HealthData(7, 8, 432, 3, 143001, 76, "1957-01-04"));
+        healthDataList.add(new HealthData(1, 2, 145, 1.8, 7000, 120, "2024-01-11"));
+        healthDataList.add(new HealthData(2, 2, 115, 1.8, 14000, 76, "2024-04-12"));
+        healthDataList.add(new HealthData(3, 3, 90, 1.67, 11008, 180, "2024-01-02"));
+        healthDataList.add(new HealthData(4, 4, 89, 1.76, 21000, 70, "2023-06-01"));
+        healthDataList.add(new HealthData(5, 6, 100, 1.9, 10001, 53, "2024-04-12"));
+        healthDataList.add(new HealthData(6, 7, 120, 1.9, 10001, 53, "2024-04-12"));
+        healthDataList.add(new HealthData(7, 8, 195, 4.3, 143001, 76, "1957-01-04"));
 
         for (HealthData healthData : healthDataList) {
             boolean success = healthDataDao.createHealthData(healthData);
@@ -103,7 +110,9 @@ public class HealthMonitoringApp {
     public static void testGenerateRecommendations(int userId) {
         HealthData latestHealthData = healthDataDao.getLatestHealthDataForUser(userId);
         if (latestHealthData != null) {
-            RecommendationSystem recommendationSystem = new RecommendationSystem();
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            RecommendationDao recommendationDao = new RecommendationDao(databaseConnection.getCon());
+            RecommendationSystem recommendationSystem = new RecommendationSystem(recommendationDao);
             List<String> recommendations = recommendationSystem.generateRecommendations(latestHealthData);
             System.out.println("Recommendations based on latest health data:");
             for (String recommendation : recommendations) {
