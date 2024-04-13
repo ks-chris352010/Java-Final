@@ -1,5 +1,7 @@
 import org.mindrot.jbcrypt.BCrypt;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDao {
     private Connection connection;
@@ -107,6 +109,85 @@ public class UserDao {
         }
         return false;
     }
+
+        // Method to associate a doctor with a patient:
+        public boolean addDoctorPatientRelation(int doctorId, int patientId) {
+            String sql = "INSERT INTO doctor_patient (doctor_id, patient_id) VALUES (?, ?)";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setInt(1, doctorId);
+                statement.setInt(2, patientId);
+                int rowsInserted = statement.executeUpdate();
+                return rowsInserted > 0;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    
+        // Method to remove the association between a doctor and a patient:
+        public boolean removeDoctorPatientRelation(int doctorId, int patientId) {
+            String sql = "DELETE FROM doctor_patient WHERE doctor_id = ? AND patient_id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setInt(1, doctorId);
+                statement.setInt(2, patientId);
+                int rowsDeleted = statement.executeUpdate();
+                return rowsDeleted > 0;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    
+        // Method to check if a doctor-patient relation exists:
+        public boolean hasDoctorPatientRelation(int doctorId, int patientId) {
+            String sql = "SELECT * FROM doctor_patient WHERE doctor_id = ? AND patient_id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setInt(1, doctorId);
+                statement.setInt(2, patientId);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    return resultSet.next();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    
+        // Method to get a patient's doctors:
+        public List<User> getDoctorsForPatient(int patientId) {
+            List<User> doctors = new ArrayList<>();
+            String sql = "SELECT * FROM users WHERE id IN (SELECT doctor_id FROM doctor_patient WHERE patient_id = ?)";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setInt(1, patientId);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        User doctor = extractUserFromResultSet(resultSet);
+                        doctors.add(doctor);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return doctors;
+        }
+    
+        // Method to get a doctor's patients:
+        public List<User> getPatientsForDoctor(int doctorId) {
+            List<User> patients = new ArrayList<>();
+            String sql = "SELECT * FROM users WHERE id IN (SELECT patient_id FROM doctor_patient WHERE doctor_id = ?)";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setInt(1, doctorId);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        User patient = extractUserFromResultSet(resultSet);
+                        patients.add(patient);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return patients;
+        }
 
     // Method to convert a user entry form the database into user object:
     private User extractUserFromResultSet(ResultSet resultSet) throws SQLException {

@@ -46,6 +46,10 @@ public class HealthData {
     public String getDate() {
         return date;
     }
+
+    public double getBMI() {
+        return weight / height;
+    };
     
     // Setter methods:
     public void setId(int id) {
